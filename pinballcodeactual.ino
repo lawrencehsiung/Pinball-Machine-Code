@@ -1,11 +1,17 @@
-#include <Servo.h>
-#include "pitches.h"
+//////////////////////////////////////////////////////
+//  Pinball code - Lawrence Hsiung 
+//  ECE115
+//////////////////////////////////////////////////////
 
+
+#include <Servo.h>
+#include "pitches.h" // for sounds when scoring
+
+//SETUP////////////////////////////////////////
 
 Servo servo;
 int servopos = 0;
 int servotime = 0;
-
 
 int SER = 2;  //SER
 int RCLK = 3;
@@ -28,10 +34,11 @@ int score = 0;
 
 byte numbers[10] {B00000011,B10011111, B00100101, B00001101, B10011001, B01001001, B01000001, B00011111,B00000001, B00001001};
 
-//sounds //////////////////////////////////////////
+//SOUNDS//////////////////////////////////////////
+
 int melody[] = {
   NOTE_E6, NOTE_D6, NOTE_FS5, NOTE_GS5, NOTE_CS6, NOTE_B5, NOTE_D5, NOTE_E5, NOTE_B5, NOTE_A5, NOTE_CS5, NOTE_E5, NOTE_A5
-}; //NOKIA
+}; //NOKIA TONE
 int noteDurations[] = {
   8, 8, 4, 4, 8, 8, 4, 4, 8, 8, 4, 4, 4
 };
@@ -47,22 +54,16 @@ void setup() {
   pinMode(digit3, OUTPUT);
   pinMode(digit4, OUTPUT);
 
-
-
   pinMode(gameover, INPUT);
   pinMode(knock1, INPUT);
   pinMode(knock2, INPUT);
-  //pinMode(irdetect, INPUT);
 
   servo.attach(5);
 }
 
 void loop() {
-  //digitalWrite(gameover, LOW);
   Serial.print(analogRead(knock2));
-  Serial.print('\n');
-  //delay(1000);
-  
+  Serial.print('\n');  
 
 if(analogRead(gameover)>900){
   score = 0;
@@ -77,7 +78,6 @@ if(analogRead(gameover)>900){
   delay(1000);
 }
 
-  
 if(servotime > 100){
   servopos = random(1,179);
   servo.write(servopos); 
@@ -89,15 +89,14 @@ if(servotime > 100){
   }
 
 
+  //CHECKS///////////////////////////////////
   //Serial.print(analogRead(irdetect));
   //Serial.print('\n');
 
-
-
   if(score>9999){
-    score = 0;
-    
+    score = 0;  
   }
+  
   if(analogRead(irdetect1) >370){
     score++;
     displayup(score);
@@ -129,19 +128,17 @@ if(servotime > 100){
   else{
     displayup(score);
     //delay(50);
-  }
- 
-
-      
+  }  
 }
 
+//SCORE DISPLAY////////////////////////////////////////////////////
 void displayup(int score) {
   int score1000 = score / 1000;
   int score100 = (score - (score1000*1000)) / 100;
   int score10 = (score - (score1000*1000) - (score100*100)) / 10;
   int score1 = (score - (score1000*1000) - (score100*100) - (score10*10));
   
-
+  //refresh seven segment display
   digitalWrite(digit1, HIGH);
   digitalWrite(digit2, HIGH);
   digitalWrite(digit3, HIGH);
@@ -151,9 +148,10 @@ void displayup(int score) {
   digitalWrite(digit3, LOW);
   digitalWrite(digit4, LOW);
 
-        //for(int t = 0; t < 3; t++){        // adjust t< whatever for time 10ms * t times = display time  // SENSITIVITY OF SENSOR
-
-          
+  // adjust t< whatever for time 10ms * t times = display time  
+  // SENSITIVITY OF SENSOR
+  //push score to displays
+  
           digitalWrite(digit1, LOW);
           digitalWrite(digit2, HIGH);
           digitalWrite(digit3, HIGH);
@@ -164,7 +162,6 @@ void displayup(int score) {
           delay(5);
           //Serial.print(score1);
 
-          
           digitalWrite(digit1, HIGH);
           digitalWrite(digit2, LOW);
           digitalWrite(digit3, HIGH);
@@ -174,8 +171,7 @@ void displayup(int score) {
           shiftOut(SER, SRCLK, LSBFIRST, numbers[score10]);   
           digitalWrite(RCLK, HIGH);
           delay(5);
-         
- 
+        
           digitalWrite(digit1, HIGH);
           digitalWrite(digit2, HIGH);
           digitalWrite(digit3, LOW);
@@ -194,10 +190,8 @@ void displayup(int score) {
           //Serial.print(score1000);
           shiftOut(SER, SRCLK, LSBFIRST, numbers[score1000]);   
           digitalWrite(RCLK, HIGH);
-          delay(5);       
-     //}
+          delay(5);  
+  
         return;       
-    
-//  }
 }
 
